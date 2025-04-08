@@ -108,7 +108,7 @@ jobs:
       - name: copy rootful docker image to ghcr.io
         # this will also copy both the amd64 and arm64 versions at the same time
         run: |-
-          oras cp --recursive docker.io/gitea/gitea:${{ steps.meta.outputs.tags }} ghcr.io/gitea/gitea:${{ steps.meta.outputs.tags }}
+          oras cp --recursive docker.io/allenconlon/gitea:${{ steps.meta.outputs.tags }} ghcr.io/a1994sc/gitea:${{ steps.meta.outputs.tags }}
   docker-rootless:
     runs-on: namespace-profile-gitea-release-docker
     steps:
@@ -153,4 +153,4 @@ jobs:
       - name: copy rootful docker image to ghcr.io
         # this will also copy both the amd64 and arm64 versions at the same time
         run: |-
-          oras cp --recursive docker.io/gitea/gitea:${{ steps.meta.outputs.tags }} ghcr.io/gitea/gitea:${{ steps.meta.outputs.tags }}
+          oras cp --recursive docker.io/allenconlon/gitea:${{ steps.meta.outputs.tags }} ghcr.io/a1994sc/gitea:${{ steps.meta.outputs.tags }}
