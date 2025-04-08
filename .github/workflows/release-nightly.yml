@@ -69,6 +69,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
       - uses: docker/setup-qemu-action@v3
+      - uses: oras-project/setup-oras@v1
       - uses: docker/setup-buildx-action@v3
       - name: Get cleaned branch name
         id: clean_name
@@ -85,6 +86,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to GHCR using PAT
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: fetch go modules
         run: make vendor
       - name: build rootful docker image
@@ -94,6 +101,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: gitea/gitea:${{ steps.clean_name.outputs.branch }}
+      - name: copy rootful docker image to ghcr.io
+        # this will also copy both the amd64 and arm64 versions at the same time
+        run: |-
+          oras cp --recursive docker.io/gitea/gitea:${{ steps.meta.outputs.tags }} ghcr.io/gitea/gitea:${{ steps.meta.outputs.tags }}
   nightly-docker-rootless:
     runs-on: namespace-profile-gitea-release-docker
     steps:
@@ -106,6 +117,7 @@ jobs:
           go-version-file: go.mod
           check-latest: true
       - uses: docker/setup-qemu-action@v3
+      - uses: oras-project/setup-oras@v1
       - uses: docker/setup-buildx-action@v3
       - name: Get cleaned branch name
         id: clean_name
@@ -122,6 +134,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to GHCR using PAT
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       - name: fetch go modules
         run: make vendor
       - name: build rootless docker image
@@ -132,3 +150,7 @@ jobs:
           push: true
           file: Dockerfile.rootless
           tags: gitea/gitea:${{ steps.clean_name.outputs.branch }}-rootless
+      - name: copy rootful docker image to ghcr.io
+        # this will also copy both the amd64 and arm64 versions at the same time
+        run: |-
+          oras cp --recursive docker.io/gitea/gitea:${{ steps.meta.outputs.tags }} ghcr.io/gitea/gitea:${{ steps.meta.outputs.tags }}
